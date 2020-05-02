@@ -19,5 +19,5 @@ python train_seq2seq_oad.py \
 --mode 'flow' \
 --pose_1080p_flag 'yes' \
 --pose_flag 'yes' \
---task 'class'
+--task 'joint'
 
