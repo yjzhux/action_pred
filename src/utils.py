@@ -219,11 +219,11 @@ class FeatureExtractor(nn.Module):
     def forward(self, x):
         outputs = []
         # for models trained with single gpu
-        for name, module in self.submodule._modules.items():
+        # for name, module in self.submodule._modules.items():
 
         # for models trained with torch.nn.DataParallel()
         # there is an extra 'module' for parallel model
-        # for name, module in self.submodule.module._modules.items():
+        for name, module in self.submodule.module._modules.items():
             # ipdb.set_trace()
 
             if name is "dp": x = x.view(x.size(0), -1)
@@ -233,7 +233,7 @@ class FeatureExtractor(nn.Module):
                 outputs.append(x)
             
         if len(outputs) == 0:
-            print('Cannot find ' + extracted_layers + ' in the model.')
+            print('Cannot find ' + self.extracted_layers + ' in the model.')
         return outputs
 
 

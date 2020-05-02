@@ -36,7 +36,8 @@ def build_path(mode):
     
     model_dir = os.path.join(args.root_dir, args.model_folder, exp_name, log_name)
     if not os.path.isdir(model_dir):
-        os.makedirs(model_dir)
+        print('No dirs: ', model_dir)
+        sys.exit(0)
     ckpt_path = os.path.join(model_dir, 'checkpoint.pth.tar')
     best_path = os.path.join(model_dir, 'model_best.pth.tar')
     return ckpt_path, best_path
