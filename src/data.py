@@ -56,15 +56,18 @@ def load_feats(feat_path, mode, pose_flag, pose_1080p_flag=True, train_flag=True
     #     ranges = range(0, 30)
     # else:
     #     ranges = range(30, 50)
-    if train_flag:
-        ranges = [i for i in range(0, 29)]
-        ranges.append(32)
-    else:
-        ranges = [i for i in range(33, 44)] + [i for i in range(50, 55)] \
-                + [i for i in range(56, 59)]
-        ranges.append(46)
-        # take two sequences fro visualization
-        # ranges = [33, 39]
+    
+    # filter out thoses sequences with bad poses
+    # 2020-02-13
+    # if train_flag:
+    #     ranges = [i for i in range(0, 29)]
+    #     ranges.append(32)
+    # else:
+    #     ranges = [i for i in range(33, 44)] + [i for i in range(50, 55)] \
+    #             + [i for i in range(56, 59)]
+    #     ranges.append(46)
+    #     # take two sequences fro visualization
+    #     # ranges = [33, 39]
     
     # The first 41 for training and the rest 9 for testing
     if train_flag:
