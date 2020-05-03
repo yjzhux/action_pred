@@ -23,6 +23,7 @@ parser.add_argument('--mode', default='flow', type=str, metavar='S', help='rgb, 
 parser.add_argument('--future_length', default=5, type=int, metavar='N', help='the number of future frames')
 parser.add_argument('--pose_flag', default='y', type=str, metavar='S', help='whether to add pose feature')
 parser.add_argument('--copy_flag', default='n', type=str, metavar='S', help='whether to add pose feature')
+parser.add_argument('--task', default='joint', type=str, metavar='S', help="task: 'class', 'pose', 'joint'")
 
 
 def pose_show(pose, frame_num, k, label, prefix='gt', color='r-'):
@@ -206,7 +207,7 @@ def test(test_loader, model, criterion, log_dir, f_length, copy_flag):
 if __name__ == '__main__':
     args = parser.parse_args()
     print(args)
-    root_dir = '../dataset_public/OAD/'
+    root_dir = '../data/OAD/'
     model_folder = 'trained_models'
     model_exp = 'seq2seq'
     log_folder = 'logs'
@@ -222,18 +223,16 @@ if __name__ == '__main__':
 
     # --------------------------------------------------------------------------
     # path config
-    exp_name = '{}_future{}'.format(model_exp, args.future_length)
+    exp_name = '{}_future{}_{}'.format(model_exp, args.future_length, args.task)
     log_name = "{}_{}_pose{}".format(exp_name, args.mode, str2bool(args.pose_flag))
     log_dir = os.path.join(root_dir, log_folder, exp_name, log_name)
 
     model_dir = os.path.join(root_dir, model_folder, exp_name, log_name)
-    if not os.path.isdir(model_dir):
-        os.makedirs(model_dir)
     ckpt_path = os.path.join(model_dir, 'checkpoint.pth.tar')
     best_path = os.path.join(model_dir, 'model_best.pth.tar')
     
     # check if the experiment has been performed
-    if not os.path.isdir(log_dir):
+    if not os.path.isdir(model_dir):
         print('Cannot find {}. Please train a model before testing.'.format(model_dir))
         sys.exit(0)
     
@@ -263,11 +262,22 @@ if __name__ == '__main__':
                     shuffle=False, num_workers=args.workers, pin_memory=True)
     
     # --------------------------------------------------------------------------
+    # decoder input config according to args.task
+    if args.task == 'class':
+        de_input_dim = class_num
+    elif args.task == 'pose':
+        de_input_dim = num_joint*2
+    elif args.task == 'joint':
+        de_input_dim = class_num + num_joint*2
+    else:
+        raise Exception("Unsupport task!", args.task)
+
     # build model
     encoder = lstm.Encoder(input_size, hid_dim, class_num, n_layers=1)
-    decoder = lstm.Decoder(class_num, hid_dim, class_num, n_layers=1, 
+    decoder = lstm.Decoder(de_input_dim, hid_dim, class_num, n_layers=1, 
                             n_pose = num_joint * 2)
-    model = lstm.Seq2Seq(encoder, decoder, f_length=args.future_length)
+    model = lstm.Seq2Seq(encoder, decoder, f_length=args.future_length,
+                            task=args.task)
     model = load_trained_model(model, ckpt_path)
     model = model.cuda()
     
