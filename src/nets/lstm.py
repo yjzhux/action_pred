@@ -176,6 +176,30 @@ class Decoder(nn.Module):
         return class_out, pose_out, hidden
 
 
+class Decoder0(nn.Module):
+    '''Add a hidden layer to the linear module.
+    '''
+    def __init__(self, input_size, hid_dim, n_class, n_layers, n_pose):
+        super(Decoder,self).__init__()
+        self.hid_dim = hid_dim
+        self.n_layers = n_layers
+        self.n_class = n_class
+        self.n_pose = n_pose
+        # self.gru = nn.GRU(input_size + n_pose, hid_dim, n_layers)
+        self.gru = nn.GRU(input_size, hid_dim, n_layers)
+        self.h2class = nn.Sequential(nn.Linear(hid_dim, n_pose), nn.Linear(n_pose, n_class))
+        self.h2pose = nn.Sequential(nn.Linear(hid_dim, n_class), nn.Linear(n_class, n_pose))
+
+    
+    def forward(self, x, hidden):
+        # None represents hidden state with zero initialization
+        # ipdb.set_trace()
+        # the inputs of the decoder x.shape = (seq_len, batch_size, feat_dim)
+        hidden, h_n = self.gru(x, None) 
+        class_out = self.h2class(hidden)
+        pose_out = self.h2pose(hidden)
+        return class_out, pose_out, hidden
+
 
 class Decoder1(nn.Module):
     '''Use GRU as Decoder to predict future labels. 

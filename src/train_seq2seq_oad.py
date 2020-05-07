@@ -237,7 +237,7 @@ if __name__ == '__main__':
     # --------------------------------------------------------------------------
     # build model
     encoder = lstm.Encoder(input_size, hid_dim, class_num, n_layers=1)
-    decoder = lstm.Decoder(de_input_dim, hid_dim, class_num, n_layers=1, 
+    decoder = lstm.Decoder0(de_input_dim, hid_dim, class_num, n_layers=1, 
                             n_pose = num_joint * 2)
     model = lstm.Seq2Seq(encoder, decoder, f_length=args.future_length,
                             task=args.task)
