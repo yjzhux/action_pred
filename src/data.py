@@ -75,6 +75,8 @@ def load_feats(feat_path, mode, pose_flag, pose_1080p_flag=True, train_flag=True
     else:
         ranges = [i for i in range(50, 55)] + [i for i in range(56, 59)]
         ranges.append(46)
+        # take two sequences fro visualization
+        # ranges = [46, 50]
     # load all the sequences and labels into a list
     feats = []
     poses = []
