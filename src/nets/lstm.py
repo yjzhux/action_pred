@@ -180,7 +180,7 @@ class Decoder0(nn.Module):
     '''Add a hidden layer to the linear module.
     '''
     def __init__(self, input_size, hid_dim, n_class, n_layers, n_pose):
-        super(Decoder,self).__init__()
+        super(Decoder0,self).__init__()
         self.hid_dim = hid_dim
         self.n_layers = n_layers
         self.n_class = n_class
@@ -199,6 +199,41 @@ class Decoder0(nn.Module):
         class_out = self.h2class(hidden)
         pose_out = self.h2pose(hidden)
         return class_out, pose_out, hidden
+
+
+class Decoder0_1(nn.Module):
+    '''Add hidden outputs.
+    '''
+    def __init__(self, input_size, hid_dim, n_class, n_layers, n_pose):
+        super(Decoder0_1,self).__init__()
+        self.hid_dim = hid_dim
+        self.n_layers = n_layers
+        self.n_class = n_class
+        self.n_pose = n_pose
+        # self.gru = nn.GRU(input_size + n_pose, hid_dim, n_layers)
+        self.gru = nn.GRU(input_size, hid_dim, n_layers)
+        # hidden --> class hidden --> pose
+        self.h2ch = nn.Linear(hid_dim, n_class)
+        self.ch2p = nn.Linear(n_class, n_pose)
+        # hidden --> pose hidden --> class
+        self.h2ph = nn.Linear(hid_dim, n_pose)
+        self.ph2c = nn.Linear(n_pose, n_class)
+
+    
+    def forward(self, x, hidden):
+        # None represents hidden state with zero initialization
+        # ipdb.set_trace()
+        # the inputs of the decoder x.shape = (seq_len, batch_size, feat_dim)
+        hidden, h_n = self.gru(x, None) 
+
+        ph = self.h2ph(hidden)
+        class_out = self.ph2c(ph)
+
+        ch = self.h2ch(hidden)
+        pose_out = self.ch2p(ch)
+
+        return class_out, pose_out, hidden
+        # return (class_out + ch)/2, (pose_out + ph)/2, hidden
 
 
 class Decoder1(nn.Module):
